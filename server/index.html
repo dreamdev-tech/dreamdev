@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HLS Video Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        video {
+            width: 80%;
+            max-width: 800px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Video Streaming with HLS</h1>
+
+    <!-- Video player element -->
+    <video id="video" controls></video>
+
+    <!-- Include HLS.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+    <script>
+        // Define the video element and the URL to the master playlist in your MinIO bucket
+        const video = document.getElementById('video');
+        const hlsUrl = 'http://localhost:9001/dreamdev/hls/master.m3u8'; // Replace with your actual MinIO URL
+
+        if (Hls.isSupported()) {
+            // If HLS.js is supported (most modern browsers)
+            const hls = new Hls();
+            hls.loadSource(hlsUrl);
+            hls.attachMedia(video);
+
+            hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                console.log("HLS stream is ready to play");
+            });
+
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    switch (data.fatal) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            console.error('Network error while loading the video');
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            console.error('Media error while loading the video');
+                            break;
+                        case Hls.ErrorTypes.OTHER_ERROR:
+                            console.error('Some other error occurred');
+                            break;
+                        default:
+                            console.error('Unknown error occurred');
+                            break;
+                    }
+                }
+            });
+        }
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // For browsers like Safari that support HLS natively
+            video.src = hlsUrl;
+        }
+        else {
+            console.error('Your browser does not support HLS');
+        }
+    </script>
+
+</body>
+</html>

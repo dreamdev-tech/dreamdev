@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17.2
+    container_name: dreamdev-db
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: dreamdev
+    ports:
+      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '1024M'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  minio:
+    image: docker.io/minio/minio
+    container_name: dreamdev-minio
+    restart: always
+    environment:
+      MINIO_ROOT_USER: root_user
+      MINIO_ROOT_PASSWORD: aziz1234@azerty
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: '4096M'
+    ports:
+      - "9001:9000"
+    volumes:
+      - minio_data:/data
+      - minio_config:/root/.minio
+    command: server /data
+volumes:
+  postgres_data:
+    driver: local
+  minio_data:
+    driver: local
+  minio_config:
+    driver: local
+
+# resting resources : 2 cpu, 
