@@ -76,9 +76,9 @@ func isEmailExistsQuery(db *sqlx.DB, email string) (bool, error) {
 
 func insertUser(db *sqlx.DB, user types.SignupUser, hashedPassword, otpCode string) (pgtype.UUID, error) {
 	var userID pgtype.UUID
-	query := `INSERT INTO users (first_name, last_name, email, password, otp_secret)
-            VALUES ($1, $2, $3, $4, $5) RETURNING id;`
-	if err := db.QueryRow(query, user.FirstName, user.LastName, user.Email, hashedPassword, otpCode).Scan(&userID); err != nil {
+	query := `INSERT INTO users (first_name, last_name, email, password, otp_secret,login_provider)
+            VALUES ($1, $2, $3, $4, $5,$6) RETURNING id;`
+	if err := db.QueryRow(query, user.FirstName, user.LastName, user.Email, hashedPassword, otpCode, "email").Scan(&userID); err != nil {
 		return userID, fmt.Errorf("error inserting user into database: %w", err)
 	}
 	return userID, nil

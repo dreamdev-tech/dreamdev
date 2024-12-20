@@ -8,7 +8,7 @@ import (
 )
 
 func GenerateOTPCode() string {
-	return string(rand.Intn(900000) + 100000)
+	return fmt.Sprintf("%06d", rand.Intn(999999))
 }
 
 func HashPassword(password string) (string, error) {

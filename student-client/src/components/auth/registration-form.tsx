@@ -17,7 +17,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 
-export default function RegistrationForm() {
+export default function RegistrationForm({setOpenOtpPopup}: {setOpenOtpPopup: (value: boolean) => void}) {
     const [formData, setFormData] = useState<SignupUserType>({
         first_name: "",
         last_name: "",
@@ -31,7 +31,7 @@ export default function RegistrationForm() {
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
         const { name, value } = e.target;
-        
+
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -69,15 +69,22 @@ export default function RegistrationForm() {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (validateForm()) {
-            console.log("Form submitted:", formData);
             try {
                 const res = await axiosInstance.post(
                     `${authServiceBaseUrl}/users/signup/email`,
                     formData,
                 );
-                console.log(res.data);
+                localStorage.setItem("accessToken", res.data.access_token);
+                localStorage.setItem("refreshToken", res.data.refresh_token);
+                setOpenOtpPopup(true);
             } catch (error) {
-                console.log(error);
+                toast.error("An error occurred. Please try again later", {
+                    duration: 3000,
+                    action: {
+                        label: "Close",
+                        onClick: (event) => event.cancelable,
+                    },
+                });
             }
         }
     };

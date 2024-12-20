@@ -36,11 +36,16 @@ export const usersTable = pgTable("users", {
 
 export const coursesTable = pgTable("courses", {
     id: uuid("id").primaryKey().defaultRandom(),
+    teacher_id: uuid("teacher_id").notNull().references(() => usersTable.id),
     course_name: varchar("course_name", { length: 255 }).notNull(),
     course_image_url: varchar({ length: 255 }),
     course_description: text("course_description").notNull(),
     created_at: timestamp().notNull().defaultNow(),
     updated_at: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+}, (table) => {
+    return {
+        teacherIndex: index().on(table.teacher_id),
+    };
 });
 
 export const chaptersTable = pgTable("chapters", {
