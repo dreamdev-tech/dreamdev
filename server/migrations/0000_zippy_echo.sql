@@ -93,11 +93,11 @@ END $$;
 DO $$ BEGIN
  ALTER TABLE "user_course_progress" ADD CONSTRAINT "user_course_progress_user_course_id_user_courses_id_fk" FOREIGN KEY ("user_course_id") REFERENCES "public"."user_courses"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
- WHEN duplicate_object THEN null;
+WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "user_course_progress" ADD CONSTRAINT "user_course_progress_chapter_id_chapters_id_fk" FOREIGN KEY ("chapter_id") REFERENCES "public"."chapters"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "user_course_progress" ADD CONSTRAINT "user_course_progress_chapter_id_chapters_id_fk" FOREIGN KEY ("chapter_id") REFERENCES "public"."chapters"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
