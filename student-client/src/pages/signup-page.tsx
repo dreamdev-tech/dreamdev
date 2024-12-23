@@ -1,22 +1,15 @@
 import RegistrationForm from "@/components/auth/registration-form";
 import codingLoginPageImage from "@/assets/images/coding-login-page-image.webp";
-import { Copy } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import {
     Dialog,
-    DialogClose,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import InputOTPForm from "@/components/auth/otp-popup";
+
 export default function SignupPage() {
     const [openOtpPopup, setOpenOtpPopup] = useState(false);
     return (
@@ -32,15 +25,18 @@ export default function SignupPage() {
             />
             <div className="flex items-center justify-center">
                 <RegistrationForm
-                setOpenOtpPopup={setOpenOtpPopup}
+                    setOpenOtpPopup={setOpenOtpPopup}
                 />
                 <Dialog open={openOtpPopup}>
                     <DialogContent className="sm:max-w-md">
                         <DialogHeader>
                             <DialogTitle>One time password</DialogTitle>
                             <DialogDescription>
-                                We have sent a one-time password to your email. Please enter the OTP to verify your account.
-                                <InputOTPForm />
+                                We have sent a one-time password to your email.
+                                Please enter the OTP to verify your account.
+                                <InputOTPForm 
+                                setOpenOtpPopup={setOpenOtpPopup}
+                                />
                             </DialogDescription>
                         </DialogHeader>
                     </DialogContent>

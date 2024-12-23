@@ -18,12 +18,13 @@ var (
 // GenerateToken generates a new access token and refresh token for the given user.
 // The access token is valid for 15 minutes and the refresh token is valid for 7 days.
 // The function returns the access token, refresh token and an error.
-func GenerateToken(userID pgtype.UUID, userRole string) (string, string, error) {
+func GenerateToken(userID pgtype.UUID, userRole string, isPremium bool) (string, string, error) {
 	// Access Token
 	accessClaims := jwt.MapClaims{
-		"user_id":   userID,
-		"exp":       time.Now().Add(time.Minute * 15).Unix(), // Token valid for 15 minutes
-		"user_role": userRole,
+		"user_id":    userID,
+		"exp":        time.Now().Add(time.Minute * 15).Unix(), // Token valid for 15 minutes
+		"user_role":  userRole,
+		"is_premium": isPremium,
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
 	accessTokenString, err := accessToken.SignedString(secretKey)
@@ -33,9 +34,10 @@ func GenerateToken(userID pgtype.UUID, userRole string) (string, string, error) 
 
 	// Refresh Token
 	refreshClaims := jwt.MapClaims{
-		"user_id":   userID,
-		"exp":       time.Now().Add(time.Hour * 24 * 7).Unix(), // Token valid for 7 days
-		"user_role": userRole,
+		"user_id":    userID,
+		"exp":        time.Now().Add(time.Hour * 24 * 7).Unix(), // Token valid for 7 days
+		"user_role":  userRole,
+		"is_premium": isPremium,
 	}
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
 	refreshTokenString, err := refreshToken.SignedString(refreshSecretKey)
@@ -98,12 +100,16 @@ func RefreshToken(tokenString string) (string, string, error) {
 	if !ok {
 		return "", "", fmt.Errorf("invalid token payload")
 	}
-
+	isPremium, ok := claims["is_premium"].(bool)
+	if !ok {
+		return "", "", fmt.Errorf("invalid token payload")
+	}
 	// Generate a new access token
 	accessClaims := jwt.MapClaims{
-		"user_id":   userID,                                  // Convert float64 back to uint
-		"exp":       time.Now().Add(time.Minute * 15).Unix(), // Token valid for 15 minutes
-		"user_role": userRole,
+		"user_id":    userID,                                  
+		"exp":        time.Now().Add(time.Minute * 15).Unix(), // Token valid for 15 minutes
+		"user_role":  userRole,
+		"is_premium": isPremium,
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
 	accessTokenString, err := accessToken.SignedString(secretKey)
@@ -113,9 +119,10 @@ func RefreshToken(tokenString string) (string, string, error) {
 
 	// Generate a new refresh token
 	refreshClaims := jwt.MapClaims{
-		"user_id":   userID,
-		"exp":       time.Now().Add(time.Hour * 24 * 7).Unix(), // Refresh token valid for another 7 days
-		"user_role": userRole,
+		"user_id":    userID,
+		"exp":        time.Now().Add(time.Hour * 24 * 7).Unix(), // Refresh token valid for another 7 days
+		"user_role":  userRole,
+		"is_premium": isPremium,
 	}
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
 	refreshTokenString, err := refreshToken.SignedString(refreshSecretKey)

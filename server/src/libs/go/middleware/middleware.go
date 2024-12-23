@@ -1,10 +1,12 @@
 package middleware
 
 import (
+	"log"
 	"strings"
 
 	"github.com/Aziz798/dreamdev/src/libs/go/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 // AuthenticationMiddleware checks for the presence and validity of the Authorization header
@@ -33,11 +35,11 @@ func AuthenticationMiddleware() fiber.Handler {
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid or expired token, refresh token required"})
 		}
-
 		// Set user ID from the token in the context
-		c.Locals("user_id", claims["user_id"])
+		c.Locals("user_id", claims["user_id"].(pgtype.UUID))
 		// Set user role from the token in the context
 		c.Locals("user_role", claims["user_role"])
+		log.Println("aaaaaaaaaaaaaaq", c.Locals("user_id"))
 		// Continue to the next middleware or handler
 		return c.Next()
 	}

@@ -18,3 +18,10 @@ export type SignupUserErrorsType ={
     password?: string;
     confirm_password?: string;
 }
+
+export type SuccessfullAuthResponse = {
+    access_token: string;
+    refresh_token: string;
+    message: string;
+    status: string;
+}
