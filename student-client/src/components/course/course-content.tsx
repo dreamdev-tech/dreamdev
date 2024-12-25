@@ -12,7 +12,7 @@ import {
 import { chapters } from "@/helpers/placeholders";
 
 export function CourseContent() {
-    const [selectedChapter, _] = useState<number | null>(null);
+    const [selectedChapter] = useState<number | null>(null);
 
     return (
         <SidebarProvider>

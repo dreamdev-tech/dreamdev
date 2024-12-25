@@ -82,7 +82,7 @@ export default function RegistrationForm(
                 setOpenOtpPopup(true);
             } catch (error) {
                 if (error instanceof AxiosError) {
-                    toast.error(error.response?.data.error!, {
+                    toast.error(error.response?.data.error ? error.response?.data.error :"unexpected error", {
                         duration: 3000,
                         action: {
                             label: "Close",
