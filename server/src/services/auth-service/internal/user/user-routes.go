@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fmt"
 	"net/http"
 	"regexp"
 
@@ -22,7 +21,7 @@ func RegisterUserRoutes(app fiber.Router, db *sqlx.DB) {
 		return loginUserWithEmailHandler(c, db)
 	})
 	authenticatedRoutes := api.Group("/", middleware.AuthenticationMiddleware())
-	authenticatedRoutes.Post("/verify-otp", middleware.IsActiveMiddleware(), func(c *fiber.Ctx) error {
+	authenticatedRoutes.Post("/verify-otp", func(c *fiber.Ctx) error {
 		return activateUserHandler(c, db)
 	})
 }
@@ -92,36 +91,32 @@ func loginUserWithEmailHandler(c *fiber.Ctx, db *sqlx.DB) error {
 }
 
 func activateUserHandler(c *fiber.Ctx, db *sqlx.DB) error {
-	var otp string
-	fmt.Printf("User id: %v", c.Locals("user_id"))
+	var body struct {
+		OTP string `json:"otp"`
+	}
 	userId, ok := c.Locals("user_id").(string)
 	if !ok {
-		fmt.Printf("Invalid user id: %v", userId)
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"error":  "Invalid user id",
 			"status": "failed",
 		})
 	}
-	if err := c.BodyParser(&otp); err != nil {
+	if err := c.BodyParser(&body); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid request body",
 		})
 	}
-	activated, err := activateUserQuery(db, userId, otp)
+	accessToken, refreshToken, err := activateUserQuery(db, userId, body.OTP)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"error":  err.Error(),
 			"status": "failed",
 		})
 	}
-	if !activated {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			"error":  "Invalid otp",
-			"status": "failed",
-		})
-	}
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
-		"status": "success",
+		"status":        "success",
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
 	})
 
 }

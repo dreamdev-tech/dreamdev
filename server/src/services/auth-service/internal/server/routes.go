@@ -20,7 +20,8 @@ import (
 
 func (s *AuthServer) RegisterFiberRoutes() {
 	api := s.App.Group("auth-service/api/v1/")
-	origins := os.Getenv("FRONTEND_URL")
+	studentClientUrl := os.Getenv("STUDENT_FRONTEND_URL")
+	teacherClientUrl := os.Getenv("TEACHER_FRONTEND_URL")
 	api.Use(logger.New(logger.Config{
 		Format: "\n[${time}] | [${status}] | [${method}] ${path}\n" +
 			"Received: ${bytesReceived} bytes | Sent: ${bytesSent} bytes | " +
@@ -30,7 +31,7 @@ func (s *AuthServer) RegisterFiberRoutes() {
 	api.Use(helmet.New(helmet.ConfigDefault))
 	api.Get("/api/metrics", monitor.New(monitor.Config{Title: "Miljon Go Server Page"}))
 	api.Use(cors.New(cors.Config{
-		AllowOrigins:     origins,
+		AllowOrigins:     studentClientUrl + "," + teacherClientUrl,
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, X-Refresh-Token, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Idempotency-Key,X-Cache",
 		AllowMethods:     "GET,POST,OPTIONS",
 		AllowCredentials: true,

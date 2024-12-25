@@ -18,13 +18,13 @@ run-auth-service: build-auth-service
 	@echo "Running auth service..."
 	@./bin/auth-service
 
-build-admin-service:
-	@echo "Building admin service..."
-	@go build -o bin/admin-service ./src/services/admin-service/cmd/api/main.go
+build-teacher-service:
+	@echo "Building teacher service..."
+	@go build -o bin/teacher-service ./src/services/teacher-service/cmd/api/main.go
 
-run-admin-service: build-admin-service
-	@echo "Running admin service..."
-	@./bin/admin-service
+run-teacher-service: build-teacher-service
+	@echo "Running teacher service..."
+	@./bin/teacher-service
 
 run-all:
 	@echo "Running all services..."

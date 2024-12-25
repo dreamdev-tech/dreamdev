@@ -111,11 +111,18 @@ func loginUserQuery(db *sqlx.DB, user types.LoginUser) (string, string, error) {
 	return accessToken, refreshToken, nil
 }
 
-func activateUserQuery(db *sqlx.DB, id string, otp string) (bool, error) {
-	q := `UPDATE users SET is_active = true WHERE id = $1 AND otp_secret = $2 RETURNING is_active;`
+func activateUserQuery(db *sqlx.DB, id string, otp string) (string, string, error) {
+	q := `UPDATE users SET is_active = true WHERE id = $1 AND otp_secret = $2 RETURNING is_active,is_premium,role;`
 	var isActive bool
-	if err := db.QueryRow(q, id, otp).Scan(&isActive); err != nil {
-		return false, fmt.Errorf("error activating user: %w", err)
+	var isPremium bool
+	var role string
+	if err := db.QueryRow(q, id, otp).Scan(&isActive, &isPremium, &role); err != nil {
+		return "", "", fmt.Errorf("error activating user: %w", err)
 	}
-	return isActive, nil
+	var uuid pgtype.UUID
+	if err := uuid.Scan(id); err != nil {
+		return "", "", fmt.Errorf("error converting id to UUID: %w", err)
+	}
+	token, refreshToken, err := utils.GenerateToken(uuid, role, isPremium)
+	return token, refreshToken, err
 }

@@ -3,6 +3,7 @@ package server
 import (
 	"os"
 
+	"github.com/Aziz798/dreamdev/src/services/teacher-service/internal/auth"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/idempotency"
@@ -13,7 +14,7 @@ import (
 
 func (s *TeacherService) RegisterFiberRoutes() {
 	api := s.App.Group("teacher-service/api/v1/")
-	origins := os.Getenv("FRONTEND_URL")
+	origins := os.Getenv("TEACHER_FRONTEND_URL")
 	api.Use(logger.New(logger.Config{
 		Format: "\n[${time}] | [${status}] | [${method}] ${path}\n" +
 			"Received: ${bytesReceived} bytes | Sent: ${bytesSent} bytes | " +
@@ -29,6 +30,7 @@ func (s *TeacherService) RegisterFiberRoutes() {
 		AllowCredentials: true,
 	}))
 	api.Use(idempotency.New(idempotency.ConfigDefault))
+	auth.RegisterAuthRoutes(api, s.db.DB())
 	// middleware.AdminMiddleware()
 	// api.Get("/health", s.healthHandler)
 }
