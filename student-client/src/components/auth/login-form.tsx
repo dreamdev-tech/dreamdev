@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -43,6 +43,7 @@ export function LoginForm(): JSX.Element {
     password: "",
   });
   const [errors, setErrors] = useState<string[]>([]);
+  const navigate = useNavigate();
 
   const [seePassword, setSeePassword] = useState(false);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -56,6 +57,8 @@ export function LoginForm(): JSX.Element {
         );
       localStorage.setItem("accessToken", res.data.access_token);
       localStorage.setItem("refreshToken", res.data.refresh_token);
+      navigate("/dashboard");
+
     } catch (error) {
       if (error instanceof AxiosError) {
         setErrors((prevErrors) => [...prevErrors, error.response?.data.error]);

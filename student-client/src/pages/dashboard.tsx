@@ -15,6 +15,7 @@ export default function LessonsPage() {
                         title={lesson.title}
                         description={lesson.description}
                         imageUrl={lesson.imageUrl}
+                        courseId={lesson.courseId}
                     />
                 ))}
             </div>

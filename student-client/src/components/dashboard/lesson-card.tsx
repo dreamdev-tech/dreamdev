@@ -1,14 +1,26 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
+import { LessonCardProps } from "@/types/course-types";
 
-interface LessonCardProps {
-    title: string;
-    description: string;
-    imageUrl: string;
-}
-
-export function LessonCard({ title, description, imageUrl }: LessonCardProps) {
+export function LessonCard(
+    { title, description, imageUrl, courseId }: LessonCardProps,
+) {
+    const navigate = useNavigate();
+    const handleNavigate = () => {
+        navigate(`/course/${courseId}`);
+    };
     return (
-        <Card className="flex flex-col h-full">
+        <Card
+            className="flex flex-col h-full"
+            onClick={() => console.log("clicked")}
+        >
             <div className="relative">
                 <img
                     src={imageUrl}
@@ -22,6 +34,13 @@ export function LessonCard({ title, description, imageUrl }: LessonCardProps) {
             <CardContent className="flex-grow">
                 <p className="line-clamp-3">{description}</p>
             </CardContent>
+            <CardFooter>
+                <Button
+                    onClick={handleNavigate}
+                >
+                    Start Lesson
+                </Button>
+            </CardFooter>
         </Card>
     );
 }

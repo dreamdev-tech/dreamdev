@@ -16,8 +16,11 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { AxiosError } from "axios";
 
-export default function RegistrationForm({setOpenOtpPopup}: {setOpenOtpPopup: (value: boolean) => void}) {
+export default function RegistrationForm(
+    { setOpenOtpPopup }: { setOpenOtpPopup: (value: boolean) => void },
+) {
     const [formData, setFormData] = useState<SignupUserType>({
         first_name: "",
         last_name: "",
@@ -78,6 +81,16 @@ export default function RegistrationForm({setOpenOtpPopup}: {setOpenOtpPopup: (v
                 localStorage.setItem("refreshToken", res.data.refresh_token);
                 setOpenOtpPopup(true);
             } catch (error) {
+                if (error instanceof AxiosError) {
+                    toast.error(error.response?.data.error!, {
+                        duration: 3000,
+                        action: {
+                            label: "Close",
+                            onClick: (event) => event.cancelable,
+                        },
+                    });
+                    return;
+                }
                 toast.error("An error occurred. Please try again later", {
                     duration: 3000,
                     action: {
