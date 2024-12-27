@@ -25,7 +25,12 @@ build-teacher-service:
 run-teacher-service: build-teacher-service
 	@echo "Running teacher service..."
 	@./bin/teacher-service
-
+build-upload-service:
+	@echo "Building upload service..."
+	@go build -o bin/upload-service ./src/services/upload-files-service/cmd/api/main.go
+run-upload-service: build-upload-service
+	@echo "Running upload service..."
+	@./bin/upload-service
 run-all:
 	@echo "Running all services..."
 	@go run .src/services/auth-service/cmd/api/main.go&
@@ -58,7 +63,7 @@ clean:
 BIN_DIR := bin
 SERVICE_NAME := minio-folder-service
 OUTPUT := $(BIN_DIR)/$(SERVICE_NAME)
-GO_FILE := services/minio-folders-service/main.go
+GO_FILE := src/services/minio-folders-service/main.go
 
 # Build and run the service
 minio-folder-add:

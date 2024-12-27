@@ -29,7 +29,7 @@ func loginHandler(c *fiber.Ctx, db *sqlx.DB) error {
 	}
 	token, refreshToken, err := loginTeacherQuery(u.Email, u.Password, db)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}

@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,29 +8,40 @@ import { useState } from "react";
 import { LoginType } from "@/types/auth-types";
 import axiosInstance from "@/lib/axios-instance";
 import { teacherServiceBaseUrl } from "@/lib/services-base-url";
+import { AxiosError } from "axios";
 
-export function LoginForm({
-    className,
-    ...props
-}: React.ComponentProps<"div">) {
+export default function LoginForm(
+    { setIsLoading }: { setIsLoading: (loading: boolean) => void },
+) {
     const [loginData, setLoginData] = useState<LoginType>({
         email: "",
         password: "",
     });
+    const [error, setError] = useState<string | null>(null);
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError(null);
         try {
-            const res = await axiosInstance.post(
+            const { data } = await axiosInstance.post(
                 `${teacherServiceBaseUrl}/auth/login`,
                 loginData,
             );
-            console.log(res);
+            localStorage.setItem("accessToken", data.accessToken);
+            localStorage.setItem("refreshToken", data.refreshToken);
         } catch (err) {
-            console.log(err);
+            if (err instanceof AxiosError) {
+                setError(err.response?.data.error);
+            } else {
+                setError("An error occurred");
+            }
+        } finally {
+            setIsLoading(false);
         }
     };
+
     return (
-        <div className={cn("flex flex-col gap-6", className)} {...props}>
+        <div className="flex flex-col gap-6">
             <ModeToggle />
             <Card className="overflow-hidden">
                 <CardContent className="grid p-0 md:grid-cols-2">
@@ -44,6 +54,9 @@ export function LoginForm({
                                 <p className="text-balance text-muted-foreground">
                                     Login to your teacher account
                                 </p>
+                                {error && (
+                                    <li className="text-red-500">{error}</li>
+                                )}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="email">Email</Label>

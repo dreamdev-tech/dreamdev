@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/Aziz798/dreamdev/src/services/upload-files-service/internal/images"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
@@ -16,7 +17,7 @@ import (
 
 func (s *UploadFilesServer) RegisterFiberRoutes() {
 	api := s.App.Group("upload-files-service/api/v1/")
-	origins := os.Getenv("FRONTEND_URL")
+	origins := os.Getenv("TEACHER_FRONTEND_URL")
 	api.Use(logger.New(logger.Config{
 		Format: "\n[${time}] | [${status}] | [${method}] ${path}\n" +
 			"Received: ${bytesReceived} bytes | Sent: ${bytesSent} bytes | " +
@@ -47,6 +48,7 @@ func (s *UploadFilesServer) RegisterFiberRoutes() {
 		SkipSuccessfulRequests: false,
 	}))
 	api.Get("/health", s.healthHandler)
+	images.RegisterImagesRoutes(api)
 }
 
 func (s *UploadFilesServer) healthHandler(c *fiber.Ctx) error {

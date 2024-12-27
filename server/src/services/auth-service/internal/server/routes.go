@@ -51,7 +51,10 @@ func (s *AuthServer) RegisterFiberRoutes() {
 		SkipFailedRequests:     false,
 		SkipSuccessfulRequests: false,
 	}))
-	api.Post("/refresh/token", RefreshTokenHandler)
+	api.Post("/refresh/token", limiter.New(limiter.Config{
+		Max:        5,
+		Expiration: 1 * time.Minute,
+	}), RefreshTokenHandler)
 	user.RegisterUserRoutes(api, s.db.DB())
 	oauth.RegisterGoogleOAuthRoutes(api, s.db.DB())
 }
