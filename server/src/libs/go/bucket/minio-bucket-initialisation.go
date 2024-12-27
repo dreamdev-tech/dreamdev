@@ -23,6 +23,15 @@ func getEnvBool(key string, defaultValue bool) bool {
 	return defaultValue
 }
 
+// MinioNewClient initializes a new MinIO client using environment variables for configuration.
+// It retrieves the following environment variables:
+// - MINIO_ACCESS_KEY_ID: the access key ID for MinIO (required).
+// - MINIO_SECRET_ACCESS_KEY: the secret access key for MinIO (required).
+// - MINIO_ENDPOINT: the endpoint for the MinIO server (default: "localhost:4200").
+// - MINIO_USE_SSL: whether to use SSL for the connection (default: false).
+//
+// Returns a pointer to a minio.Client and an error if any of the required environment variables are not set
+// or if there is an error creating the MinIO client.
 func MinioNewClient() (*minio.Client, error) {
 	accessKeyID := os.Getenv("MINIO_ACCESS_KEY_ID")
 	if accessKeyID == "" {

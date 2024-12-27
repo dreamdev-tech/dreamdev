@@ -25,7 +25,7 @@ func googleCheckUserExistsQuery(email string, db *sqlx.DB) (bool, error) {
 }
 
 func googleCreateUserQuery(email, firstName, lastName string, db *sqlx.DB) (string, string, error) {
-	q := `INSERT INTO users (email, first_name, last_name,login_provider) VALUES ($1, $2, $3,$4) RETURNING id, role`
+	q := `INSERT INTO users (email, first_name, last_name,login_provider) VALUES ($1, $2, $3,$4) RETURNING id, role, is_premium`
 	res, err := db.Query(q, email, firstName, lastName, "google")
 	if err != nil {
 		return "", "", fmt.Errorf("error creating user: %s", err.Error())
@@ -34,11 +34,12 @@ func googleCreateUserQuery(email, firstName, lastName string, db *sqlx.DB) (stri
 	res.Next()
 	var id pgtype.UUID
 	var role string
-	err = res.Scan(&id, &role)
+	var isPremium bool
+	err = res.Scan(&id, &role, &isPremium)
 	if err != nil {
 		return "", "", fmt.Errorf("error scanning user creation query: %s", err.Error())
 	}
-	token, refreshToken, err := utils.GenerateToken(id, role)
+	token, refreshToken, err := utils.GenerateToken(id, role, isPremium)
 	if err != nil {
 		return "", "", fmt.Errorf("error generating token for user: %s", err.Error())
 	}
@@ -46,7 +47,7 @@ func googleCreateUserQuery(email, firstName, lastName string, db *sqlx.DB) (stri
 }
 
 func googleLoginUserQuery(email string, db *sqlx.DB) (string, string, error) {
-	q := `SELECT id,role FROM users WHERE email = $1`
+	q := `SELECT id,role,is_premium FROM users WHERE email = $1`
 	res, err := db.Query(q, email)
 	if err != nil {
 		return "", "", fmt.Errorf("error logging in user: %s", err.Error())
@@ -55,11 +56,12 @@ func googleLoginUserQuery(email string, db *sqlx.DB) (string, string, error) {
 	res.Next()
 	var id pgtype.UUID
 	var role string
-	err = res.Scan(&id, &role)
+	var isPremium bool
+	err = res.Scan(&id, &role, &isPremium)
 	if err != nil {
 		return "", "", fmt.Errorf("error scanning user login query: %s", err.Error())
 	}
-	token, refreshToken, err := utils.GenerateToken(id, role)
+	token, refreshToken, err := utils.GenerateToken(id, role, isPremium)
 	if err != nil {
 		return "", "", fmt.Errorf("error generating token for user: %s", err.Error())
 	}

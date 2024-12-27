@@ -33,9 +33,8 @@ func AuthenticationMiddleware() fiber.Handler {
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid or expired token, refresh token required"})
 		}
-
 		// Set user ID from the token in the context
-		c.Locals("user_id", claims["user_id"])
+		c.Locals("user_id", claims["user_id"].(string))
 		// Set user role from the token in the context
 		c.Locals("user_role", claims["user_role"])
 		// Continue to the next middleware or handler

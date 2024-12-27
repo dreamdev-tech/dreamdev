@@ -43,5 +43,5 @@ volumes:
     driver: local
   minio_config:
     driver: local
-
+  
 # resting resources : 2 cpu, 

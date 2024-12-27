@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,37 +9,60 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { LoginUserType } from "@/types/auth-types";
+import { JSX, useState } from "react";
+import { LoginUserType, SuccessfullAuthResponse } from "@/types/auth-types";
 import { EyeIcon, EyeOff } from "lucide-react";
 import axiosInstance from "@/lib/axios-instance";
 import { authServiceBaseUrl } from "@/lib/services-base-url";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { FcGoogle } from "react-icons/fc";
 
-export function LoginForm() {
+/**
+ * The `LoginForm` component renders a login form for users to authenticate with their email and password.
+ * It also provides an option to login with Google OAuth.
+ *
+ * @component
+ * @example
+ * ```tsx
+ * <LoginForm />
+ * ```
+ *
+ * @returns {JSX.Element} The rendered login form component.
+ *
+ * @remarks
+ * This component uses the `useState` hook to manage the login form state and error messages.
+ * It also uses the `axiosInstance` to send a POST request to the authentication service for email login.
+ * The Google login redirects the user to the Google OAuth login page.
+ *
+ * @function
+ * @name LoginForm
+ */
+export function LoginForm(): JSX.Element {
   const [login, setLogin] = useState<LoginUserType>({
     email: "",
     password: "",
   });
   const [errors, setErrors] = useState<string[]>([]);
+  const navigate = useNavigate();
 
   const [seePassword, setSeePassword] = useState(false);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrors(() => []);
     try {
-      await axiosInstance.post(
-        `${authServiceBaseUrl}/users/login/email`,
-        login,
-      );
-      // Handle successful login
+      const res: AxiosResponse<SuccessfullAuthResponse, AxiosError> =
+        await axiosInstance.post(
+          `${authServiceBaseUrl}/users/login/email`,
+          login,
+        );
+      localStorage.setItem("accessToken", res.data.access_token);
+      localStorage.setItem("refreshToken", res.data.refresh_token);
+      navigate("/dashboard");
+
     } catch (error) {
       if (error instanceof AxiosError) {
-        // Handle Axios error
         setErrors((prevErrors) => [...prevErrors, error.response?.data.error]);
       } else {
-        // Handle other errors
         setErrors((prevErrors) => [
           ...prevErrors,
           "An unexpected error occurred",
@@ -78,8 +101,7 @@ export function LoginForm() {
                   setLogin({
                     ...login,
                     email: e.target.value,
-                  })
-                }
+                  })}
               />
             </div>
             <div className="grid gap-2">
@@ -98,8 +120,7 @@ export function LoginForm() {
                     setLogin({
                       ...login,
                       password: e.target.value,
-                    })
-                  }
+                    })}
                 />
                 <Button
                   type="button"

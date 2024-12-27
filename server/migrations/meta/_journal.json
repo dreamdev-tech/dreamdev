@@ -22,6 +22,34 @@
       "when": 1733998100231,
       "tag": "0002_living_zaran",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1734609090001,
+      "tag": "0003_sleepy_raza",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1735230610665,
+      "tag": "0004_bitter_harrier",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1735230724324,
+      "tag": "0005_worried_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1735230751575,
+      "tag": "0006_cuddly_hitman",
+      "breakpoints": true
     }
   ]
 }

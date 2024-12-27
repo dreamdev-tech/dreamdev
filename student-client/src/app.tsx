@@ -1,5 +1,5 @@
-import { Route, Routes } from "react-router-dom";
-import React, { Suspense } from "react";
+import { Route, Routes, useNavigate, useSearchParams } from "react-router-dom";
+import React, { Suspense, useEffect } from "react";
 import LoadingPage from "@/pages/loading-page";
 import Navbar from "@/components/common/navbar.tsx";
 import Footer from "@/components/common/footer";
@@ -9,14 +9,23 @@ const LoginPage = React.lazy(() => import("@/pages/login-page"));
 const SignupPAge = React.lazy(() => import("@/pages/signup-page"));
 const NotFoundPage = React.lazy(() => import("@/pages/not-found-page"));
 const DashboardPage = React.lazy(() => import("@/pages/dashboard"));
-const CoursePage = React.lazy(()=>import("@/pages/course-page"))
+const CoursePage = React.lazy(() => import("@/pages/course-page"));
 
 export default function App() {
-  const url = new URL(window.location.href);
-  const email = url.searchParams.get("email");
-  const name = url.searchParams.get("name");
-  const last_name = url.searchParams.get("last_name");
-  console.log(email, name, last_name);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const accessToken = searchParams.get("access_token");
+    const refreshToken = searchParams.get("refresh_token");
+
+    if (accessToken && refreshToken) {
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      searchParams.delete("access_token");
+      searchParams.delete("refresh_token");
+      navigate(window.location.pathname, { replace: true });
+    }
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">

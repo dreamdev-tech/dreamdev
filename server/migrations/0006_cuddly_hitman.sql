@@ -1,0 +1,1 @@
+ALTER TABLE "teacher_schedule" ADD COLUMN "day" "days_of_week" NOT NULL;

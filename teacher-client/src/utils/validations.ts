@@ -14,3 +14,4 @@ export const createCourseSchema = z.object({
         { message: "course description should be at most 500 characters" },
     ),
 });
+

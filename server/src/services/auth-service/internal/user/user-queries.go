@@ -57,7 +57,7 @@ func signupUserWithEmailQuery(db *sqlx.DB, user types.SignupUser) (string, strin
 	email.SendEmailVerificationEmail(otpCode, user.Email)
 
 	// Generate authentication tokens
-	token, refreshToken, err := utils.GenerateToken(userID, "user")
+	token, refreshToken, err := utils.GenerateToken(userID, "user", false)
 	if err != nil {
 		return "", "", fmt.Errorf("error generating tokens: %w", err)
 	}
@@ -76,22 +76,23 @@ func isEmailExistsQuery(db *sqlx.DB, email string) (bool, error) {
 
 func insertUser(db *sqlx.DB, user types.SignupUser, hashedPassword, otpCode string) (pgtype.UUID, error) {
 	var userID pgtype.UUID
-	query := `INSERT INTO users (first_name, last_name, email, password, otp_secret)
-            VALUES ($1, $2, $3, $4, $5) RETURNING id;`
-	if err := db.QueryRow(query, user.FirstName, user.LastName, user.Email, hashedPassword, otpCode).Scan(&userID); err != nil {
+	query := `INSERT INTO users (first_name, last_name, email, password, otp_secret,login_provider)
+            VALUES ($1, $2, $3, $4, $5,$6) RETURNING id;`
+	if err := db.QueryRow(query, user.FirstName, user.LastName, user.Email, hashedPassword, otpCode, "email").Scan(&userID); err != nil {
 		return userID, fmt.Errorf("error inserting user into database: %w", err)
 	}
 	return userID, nil
 }
 
 func loginUserQuery(db *sqlx.DB, user types.LoginUser) (string, string, error) {
-	q := `SELECT id, password,is_active,role,login_provider FROM users WHERE email = $1;`
+	q := `SELECT id, password,is_active,role,login_provider,is_premium FROM users WHERE email = $1;`
 	var u struct {
-		ID       pgtype.UUID `db:"id"`
-		Password *string     `db:"password"`
-		IsActive string      `db:"is_active"`
-		Role     string      `db:"role"`
-		Provider string      `db:"login_provider"`
+		ID        pgtype.UUID `db:"id"`
+		Password  *string     `db:"password"`
+		IsActive  string      `db:"is_active"`
+		Role      string      `db:"role"`
+		Provider  string      `db:"login_provider"`
+		IsPremium bool        `db:"is_premium"`
 	}
 	if err := db.Get(&u, q, user.Email); err != nil {
 		log.Println("error logging in user:", err.Error())
@@ -103,9 +104,25 @@ func loginUserQuery(db *sqlx.DB, user types.LoginUser) (string, string, error) {
 	if err := utils.ComparePassword(*u.Password, user.Password); err != nil {
 		return "", "", fmt.Errorf("wrong email or password")
 	}
-	accessToken, refreshToken, err := utils.GenerateToken(u.ID, u.Role)
+	accessToken, refreshToken, err := utils.GenerateToken(u.ID, u.Role, u.IsPremium)
 	if err != nil {
 		return "", "", fmt.Errorf("error generating token :%s", err.Error())
 	}
 	return accessToken, refreshToken, nil
+}
+
+func activateUserQuery(db *sqlx.DB, id string, otp string) (string, string, error) {
+	q := `UPDATE users SET is_active = true WHERE id = $1 AND otp_secret = $2 RETURNING is_active,is_premium,role;`
+	var isActive bool
+	var isPremium bool
+	var role string
+	if err := db.QueryRow(q, id, otp).Scan(&isActive, &isPremium, &role); err != nil {
+		return "", "", fmt.Errorf("error activating user: %w", err)
+	}
+	var uuid pgtype.UUID
+	if err := uuid.Scan(id); err != nil {
+		return "", "", fmt.Errorf("error converting id to UUID: %w", err)
+	}
+	token, refreshToken, err := utils.GenerateToken(uuid, role, isPremium)
+	return token, refreshToken, err
 }

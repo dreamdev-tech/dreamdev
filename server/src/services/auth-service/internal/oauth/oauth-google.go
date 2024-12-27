@@ -79,7 +79,7 @@ func googleCallbackRoute(c *fiber.Ctx, db *sqlx.DB) error {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString("Failed to login user")
 		}
-		response := fmt.Sprintf("%s?token=%s&refresh_token=%s", os.Getenv("FRONTEND_URL"), token, refreshToken)
+		response := fmt.Sprintf("%s?access_token=%s&refresh_token=%s", os.Getenv("FRONTEND_URL"), token, refreshToken)
 		return c.Redirect(response)
 	}
 	a, refreshToken, err := googleCreateUserQuery(userInfo["email"].(string), userInfo["given_name"].(string), userInfo["family_name"].(string), db)
@@ -88,6 +88,6 @@ func googleCallbackRoute(c *fiber.Ctx, db *sqlx.DB) error {
 		return c.Status(fiber.StatusInternalServerError).SendString("Failed to create user")
 	}
 
-	response := fmt.Sprintf("%s?email=%s&name=%s&last_name=%s", os.Getenv("FRONTEND_URL"), a, refreshToken, userInfo["family_name"].(string))
+	response := fmt.Sprintf("%s?access_token=%s&refresh_token=%s", os.Getenv("FRONTEND_URL"), a, refreshToken)
 	return c.Redirect(response)
 }

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/Aziz798/dreamdev/src/libs/go/middleware"
 	"github.com/Aziz798/dreamdev/src/libs/go/validations"
 	"github.com/Aziz798/dreamdev/src/services/auth-service/internal/types"
 	"github.com/gofiber/fiber/v2"
@@ -18,6 +19,10 @@ func RegisterUserRoutes(app fiber.Router, db *sqlx.DB) {
 
 	api.Post("/login/email", func(c *fiber.Ctx) error {
 		return loginUserWithEmailHandler(c, db)
+	})
+	authenticatedRoutes := api.Group("/", middleware.AuthenticationMiddleware())
+	authenticatedRoutes.Post("/verify-otp", func(c *fiber.Ctx) error {
+		return activateUserHandler(c, db)
 	})
 }
 
@@ -83,4 +88,35 @@ func loginUserWithEmailHandler(c *fiber.Ctx, db *sqlx.DB) error {
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
+}
+
+func activateUserHandler(c *fiber.Ctx, db *sqlx.DB) error {
+	var body struct {
+		OTP string `json:"otp"`
+	}
+	userId, ok := c.Locals("user_id").(string)
+	if !ok {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"error":  "Invalid user id",
+			"status": "failed",
+		})
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+	accessToken, refreshToken, err := activateUserQuery(db, userId, body.OTP)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"error":  err.Error(),
+			"status": "failed",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+		"status":        "success",
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+	})
+
 }
