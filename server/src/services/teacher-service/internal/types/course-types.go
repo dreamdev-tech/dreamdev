@@ -8,3 +8,8 @@ type CreateCourseType struct {
 	TeacherID   uuid.UUID `json:"teacher_id" db:"teacher_id"`
 	ImageURL    string    `json:"course_image_url" db:"course_image_url"`
 }
+
+type GetCourseNameType struct {
+	Name string    `json:"course_name" db:"course_name"`
+	ID   uuid.UUID `json:"id" db:"id"`
+}

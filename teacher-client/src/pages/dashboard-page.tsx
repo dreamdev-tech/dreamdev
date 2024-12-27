@@ -1,29 +1,31 @@
-"use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, PlusCircle } from "lucide-react";
 import CourseList from "@/components/dashboard/course-list";
-import WeeklySchedule from "@/components/dashboard/weekly-schedule";
+//import WeeklySchedule from "@/components/dashboard/weekly-schedule";
 import CreateCourseModal from "@/components/dashboard/create-course-modal";
 import ModeToggle from "@/components/theme/mode-toggle";
-
-// Mock data
-const initialCourses = [
-    { id: 1, name: "Introduction to React" },
-    { id: 2, name: "Advanced JavaScript" },
-    { id: 3, name: "Web Design Fundamentals" },
-];
+import { CourseNameResponse } from "@/types/course-types";
+import axiosInstance from "@/lib/axios-instance";
+import { teacherServiceBaseUrl } from "@/lib/services-base-url";
 
 export default function TeacherDashboard() {
-    const [courses, setCourses] = useState(initialCourses);
+    const [courses, setCourses] = useState<CourseNameResponse[] | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    const handleCreateCourse = (newCourse:string ) => {
-        setCourses([...courses, { id: courses.length + 1, name: newCourse }]);
-        setIsModalOpen(false);
-    };
+    useEffect(() => {
+        const fetchCoursesNames = async () => {
+            try {
+                const { data } = await axiosInstance.get(
+                    `${teacherServiceBaseUrl}/course/get-courses-name`,
+                );
+                setCourses(data.courses);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchCoursesNames();
+    }, []);
 
     return (
         <div className="flex flex-col h-screen">
@@ -45,7 +47,7 @@ export default function TeacherDashboard() {
                     } md:block`}
                 >
                     <h2 className="text-2xl font-bold mb-6">My Courses</h2>
-                    <CourseList courses={courses} />
+                    {courses && <CourseList courses={courses} />}
                     <Button
                         className="w-full mt-4"
                         onClick={() => setIsModalOpen(true)}
@@ -56,13 +58,12 @@ export default function TeacherDashboard() {
                 </aside>
                 <main className="flex-1 p-6 overflow-y-auto">
                     <h2 className="text-3xl font-bold mb-6">Weekly Schedule</h2>
-                    <WeeklySchedule courses={courses} />
+                    {/* <WeeklySchedule courses={courses} /> */}
                 </main>
             </div>
             <CreateCourseModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onCreateCourse={handleCreateCourse}
             />
             <ModeToggle />
         </div>

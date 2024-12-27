@@ -11,39 +11,73 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "../ui/textarea";
 import axiosInstance from "@/lib/axios-instance";
-import { uploadFilesServiceBaseUrl } from "@/lib/services-base-url";
+import {
+    teacherServiceBaseUrl,
+    uploadFilesServiceBaseUrl,
+} from "@/lib/services-base-url";
+import { AddCourseFormType, AddImageResponse } from "@/types/course-types";
+import { AxiosError, AxiosResponse } from "axios";
 
 type CreateCourseModalProps = {
     isOpen: boolean;
     onClose: () => void;
-    onCreateCourse: (courseName: string) => void;
 };
 
 export default function CreateCourseModal(
-    { isOpen, onClose, onCreateCourse }: CreateCourseModalProps,
+    { isOpen, onClose }: CreateCourseModalProps,
 ) {
-    const [courseName, setCourseName] = useState("");
     const [image, setImage] = useState<File>();
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        // if (courseName.trim()) {
-        //     onCreateCourse(courseName.trim());
-        //     setCourseName("");
-        // }
-        await uploadImage();
-    };
+    const [course, setCourse] = useState<AddCourseFormType>({
+        course_name: "",
+        course_description: "",
+        course_image_url: "",
+    });
+    const [error, setError] = useState<string | null>(null);
     const uploadImage = async () => {
         const formData = new FormData();
         if (image) {
             formData.append("image", image);
         }
         try {
-            const { data } = await axiosInstance.post(`${uploadFilesServiceBaseUrl}/images/upload-image`, formData);
-            console.log(data);
-            
+            const { data }: AxiosResponse<AddImageResponse, AxiosError> =
+                await axiosInstance.post(
+                    `${uploadFilesServiceBaseUrl}/images/upload-image`,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    },
+                );
+            setCourse({
+                ...course,
+                course_image_url: data.url,
+            });
         } catch (error) {
-            console.log(error);
-            
+            if (error instanceof AxiosError) {
+                setError(error.response?.data.error);
+            } else {
+                setError("An error occurred");
+            }
+        }
+    };
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+       
+        try {
+            await uploadImage();
+            const res = await axiosInstance.post(
+                `${teacherServiceBaseUrl}/course/create`,
+                course,
+            );
+            console.log(res.data);
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                setError(error.response?.data.error);
+            } else {
+                setError("An error occurred");
+            }
         }
     };
     return (
@@ -54,23 +88,39 @@ export default function CreateCourseModal(
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
+                        {error && (
+                            <li className="text-red-500 text-center">
+                                {error}
+                            </li>
+                        )}
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="courseName" className="text-right">
                                 Course Name
                             </Label>
                             <Input
                                 id="courseName"
-                                value={courseName}
-                                onChange={(e) => setCourseName(e.target.value)}
+                                value={course.course_name}
+                                onChange={(e) =>
+                                    setCourse({
+                                        ...course,
+                                        course_name: e.target.value,
+                                    })}
                                 className="col-span-3"
                             />
-                            <Label htmlFor="courseDescription" className="text-right">
+                            <Label
+                                htmlFor="courseDescription"
+                                className="text-right"
+                            >
                                 Course Description
                             </Label>
                             <Textarea
                                 id="courseDescription"
-                                value={courseName}
-                                onChange={(e) => setCourseName(e.target.value)}
+                                value={course.course_description}
+                                onChange={(e) =>
+                                    setCourse({
+                                        ...course,
+                                        course_description: e.target.value,
+                                    })}
                                 className="col-span-3"
                             />
                             <Label htmlFor="courseImage" className="text-right">

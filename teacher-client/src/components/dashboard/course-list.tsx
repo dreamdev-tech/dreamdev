@@ -1,15 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { CourseNameResponse } from "@/types/course-types";
 
-type Course = {
-    id: number;
-    name: string;
-};
 
-type CourseListProps = {
-    courses: Course[];
-};
 
-export default function CourseList({ courses }: CourseListProps) {
+export default function CourseList({ courses }: {courses: CourseNameResponse[]}) {
     return (
         <ul className="space-y-2">
             {courses.map((course) => (
@@ -18,7 +12,7 @@ export default function CourseList({ courses }: CourseListProps) {
                         variant="ghost"
                         className="w-full justify-start text-left"
                     >
-                        <span className="truncate">{course.name}</span>
+                        <span className="truncate">{course.course_name}</span>
                     </Button>
                 </li>
             ))}

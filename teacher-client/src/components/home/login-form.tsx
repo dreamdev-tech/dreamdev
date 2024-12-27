@@ -27,8 +27,8 @@ export default function LoginForm(
                 `${teacherServiceBaseUrl}/auth/login`,
                 loginData,
             );
-            localStorage.setItem("accessToken", data.accessToken);
-            localStorage.setItem("refreshToken", data.refreshToken);
+            localStorage.setItem("accessToken", data.access_token);
+            localStorage.setItem("refreshToken", data.refresh_token);
         } catch (err) {
             if (err instanceof AxiosError) {
                 setError(err.response?.data.error);
