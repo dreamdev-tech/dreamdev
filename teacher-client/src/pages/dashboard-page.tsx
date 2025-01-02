@@ -8,6 +8,7 @@ import ModeToggle from "@/components/theme/mode-toggle";
 import { CourseNameResponse } from "@/types/course-types";
 import axiosInstance from "@/lib/axios-instance";
 import { teacherServiceBaseUrl } from "@/lib/services-base-url";
+import { CourseListSkeleton } from "@/components/dashboard/course-list-skeleton";
 
 export default function TeacherDashboard() {
     const [courses, setCourses] = useState<CourseNameResponse[] | null>(null);
@@ -47,7 +48,9 @@ export default function TeacherDashboard() {
                     } md:block`}
                 >
                     <h2 className="text-2xl font-bold mb-6">My Courses</h2>
-                    {courses && <CourseList courses={courses} />}
+                    {courses
+                        ? <CourseList courses={courses} />
+                        : <CourseListSkeleton />}
                     <Button
                         className="w-full mt-4"
                         onClick={() => setIsModalOpen(true)}
