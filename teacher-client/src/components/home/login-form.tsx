@@ -9,6 +9,7 @@ import { LoginType } from "@/types/auth-types";
 import axiosInstance from "@/lib/axios-instance";
 import { teacherServiceBaseUrl } from "@/lib/services-base-url";
 import { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginForm(
     { setIsLoading }: { setIsLoading: (loading: boolean) => void },
@@ -18,6 +19,7 @@ export default function LoginForm(
         password: "",
     });
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
@@ -29,6 +31,7 @@ export default function LoginForm(
             );
             localStorage.setItem("accessToken", data.access_token);
             localStorage.setItem("refreshToken", data.refresh_token);
+            navigate("/dashboard");
         } catch (err) {
             if (err instanceof AxiosError) {
                 setError(err.response?.data.error);

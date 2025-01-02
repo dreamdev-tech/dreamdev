@@ -22,3 +22,54 @@ func getOneTeacherCoursesNamesQuery(teacherID uuid.UUID, db *sqlx.DB) ([]types.G
 	}
 	return courses, nil
 }
+
+func getCourseWithChaptersQuery(courseID uuid.UUID, db *sqlx.DB) (*types.GetCourseWithChaptersType, error) {
+	rows, err := db.Queryx(`
+		SELECT 
+			courses.course_name, 
+			courses.course_description, 
+			courses.course_image_url, 
+			chapters.id AS chapter_id, 
+			chapters.chapter_name, 
+			chapters.chapter_type 
+		FROM courses 
+		LEFT JOIN chapters 
+			ON courses.id = chapters.course_id 
+		WHERE courses.id = $1
+	`, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Create the course struct
+	var course types.GetCourseWithChaptersType
+	chapterMap := make(map[uuid.UUID]bool)
+
+	for rows.Next() {
+		var chapter types.Chapter
+		var chapterID uuid.UUID
+		err := rows.Scan(
+			&course.Name,
+			&course.Description,
+			&course.ImageURL,
+			&chapterID,
+			&chapter.Name,
+			&chapter.Type,
+		)
+		if err != nil {
+			return nil, err
+		}
+		if chapterID != uuid.Nil && !chapterMap[chapterID] {
+			chapter.ID = &chapterID
+			course.Chapter = append(course.Chapter, chapter)
+			chapterMap[chapterID] = true
+		}
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return &course, nil
+}

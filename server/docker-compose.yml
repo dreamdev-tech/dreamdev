@@ -1,6 +1,24 @@
-version: '3.8'
-
 services:
+  # auth-service:
+  #   build:
+  #     context: .
+  #     dockerfile:  ./src/services/auth-service/Dockerfile
+  #   container_name: dreamdev-auth-service
+  #   restart: always
+  #   depends_on:
+  #     - postgres
+  #   ports:
+  #   - "8080:8080"
+  #   env_file:
+  #     - .env
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '.5'
+  #         memory: '256M'
+  #   volumes:
+  #     - ./src/services/auth-service:/app
+
   postgres:
     image: postgres:17.2
     container_name: dreamdev-db
@@ -43,5 +61,6 @@ volumes:
     driver: local
   minio_config:
     driver: local
-  
+  # auth-service:
+  #   driver: local
 # resting resources : 2 cpu, 
