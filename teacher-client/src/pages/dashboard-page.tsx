@@ -14,12 +14,17 @@ export default function TeacherDashboard() {
     const [courses, setCourses] = useState<CourseNameResponse[] | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     useEffect(() => {
         const fetchCoursesNames = async () => {
             try {
                 const { data } = await axiosInstance.get(
                     `${teacherServiceBaseUrl}/course/get-courses-name`,
                 );
+                if (data.courses === null) {
+                    setCourses([]);
+                    return;
+                }
                 setCourses(data.courses);
             } catch (error) {
                 console.log(error);
@@ -49,7 +54,15 @@ export default function TeacherDashboard() {
                 >
                     <h2 className="text-2xl font-bold mb-6">My Courses</h2>
                     {courses
-                        ? <CourseList courses={courses} />
+                        ? (
+                            courses.length > 0
+                                ? <CourseList courses={courses} />
+                                : (
+                                    <p className="text-gray-500">
+                                        No courses found
+                                    </p>
+                                )
+                        )
                         : <CourseListSkeleton />}
                     <Button
                         className="w-full mt-4"

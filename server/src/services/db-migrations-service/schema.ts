@@ -2,8 +2,10 @@ import {
     boolean,
     date,
     index,
+    integer,
     pgEnum,
     pgTable,
+    serial,
     text,
     timestamp,
     uniqueIndex,
@@ -49,24 +51,30 @@ export const coursesTable = pgTable("courses", {
     course_name: varchar("course_name", { length: 255 }).notNull(),
     course_image_url: varchar({ length: 255 }),
     course_description: text("course_description").notNull(),
+    is_verified: boolean().default(false),
     created_at: timestamp().notNull().defaultNow(),
     updated_at: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
 }, (table) => {
     return {
         teacherIndex: index().on(table.teacher_id),
+        verifiedIndex: index().on(table.is_verified),
     };
 });
 
 export const chaptersTable = pgTable("chapters", {
     id: uuid("id").primaryKey().defaultRandom(),
+    chapter_number:serial("chapter_number"),
     course_id: uuid("course_id").notNull().references(() => coursesTable.id),
     chapter_type: chapterType("chapter_type").default("learn").notNull(),
     chapter_name: varchar("chapter_name", { length: 255 }).notNull(),
+    is_verified: boolean().default(false),
     created_at: timestamp().notNull().defaultNow(),
     updated_at: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
 }, (table) => {
     return {
         courseIndex: index().on(table.course_id),
+        verifiedIndex: index().on(table.is_verified),
+        chapterNumberIndex: index().on(table.chapter_number),
     };
 });
 

@@ -6,12 +6,13 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func createChapterQuery(chapterToCreate types.CreateChapterType, db sqlx.DB) (uuid.UUID, error) {
-	q := `INSERT INTO chapters (course_id, chapter_name, chapter_type) VALUES ($1, $2, $3) RETURNING id`
+func createChapterQuery(chapterToCreate types.CreateChapterType, db *sqlx.DB) (uuid.UUID, int, error) {
+	q := `INSERT INTO chapters (course_id, chapter_name, chapter_type) VALUES ($1, $2, $3) RETURNING id, chapter_number`
 	var chapterID uuid.UUID
-	err := db.Get(&chapterID, q, chapterToCreate.CourseID, chapterToCreate.Name, chapterToCreate.Type)
+	var chapterNumber int
+	err := db.QueryRow(q, chapterToCreate.CourseID, chapterToCreate.Name, chapterToCreate.Type).Scan(&chapterID, &chapterNumber)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, 0, err
 	}
-	return chapterID, nil
+	return chapterID, chapterNumber, nil
 }

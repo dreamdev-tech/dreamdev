@@ -24,6 +24,8 @@ export default function CoursePage() {
                     `${teacherServiceBaseUrl}/course/get-course/${courseId}`,
                 );
                 setCourse(data.course);
+                console.log(data.course);
+                
             } catch (error) {
                 if (error instanceof AxiosError) {
                     console.log(error);
@@ -39,6 +41,7 @@ export default function CoursePage() {
                     course_name={course.course_name}
                     course_description={course.course_description}
                     course_image_url={course.course_image_url}
+                    is_verified={course.is_verified}
                 />
             )}
             <h2 className="text-3xl font-semibold mb-8 text-center">

@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/Aziz798/dreamdev/src/services/teacher-service/internal/auth"
+	"github.com/Aziz798/dreamdev/src/services/teacher-service/internal/chapter"
 	"github.com/Aziz798/dreamdev/src/services/teacher-service/internal/course"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
@@ -33,6 +34,7 @@ func (s *TeacherService) RegisterFiberRoutes() {
 	api.Use(idempotency.New(idempotency.ConfigDefault))
 	auth.RegisterAuthRoutes(api, s.db.DB())
 	course.RegisterCourseRoutes(api, s.db.DB())
+	chapter.RegisterChapterRoutes(api, s.db.DB())
 	// middleware.AdminMiddleware()
 	// api.Get("/health", s.healthHandler)
 }

@@ -29,9 +29,12 @@ func getCourseWithChaptersQuery(courseID uuid.UUID, db *sqlx.DB) (*types.GetCour
 			courses.course_name, 
 			courses.course_description, 
 			courses.course_image_url, 
+			courses.is_verified,
 			chapters.id AS chapter_id, 
 			chapters.chapter_name, 
-			chapters.chapter_type 
+			chapters.chapter_type ,
+			chapters.is_verified,
+			chapters.chapter_number
 		FROM courses 
 		LEFT JOIN chapters 
 			ON courses.id = chapters.course_id 
@@ -53,9 +56,12 @@ func getCourseWithChaptersQuery(courseID uuid.UUID, db *sqlx.DB) (*types.GetCour
 			&course.Name,
 			&course.Description,
 			&course.ImageURL,
+			&course.IsVerified,
 			&chapterID,
 			&chapter.Name,
 			&chapter.Type,
+			&chapter.IsVerified,
+			&chapter.Number,
 		)
 		if err != nil {
 			return nil, err
