@@ -53,5 +53,4 @@ func MinioNewClient() (*minio.Client, error) {
 		return nil, fmt.Errorf("error creating MinIO client (endpoint: %s): %s", endpoint, err.Error())
 	}
 	return minioClient, nil
-
 }

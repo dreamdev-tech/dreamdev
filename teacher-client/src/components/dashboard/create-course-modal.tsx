@@ -53,6 +53,7 @@ export default function CreateCourseModal(
                 ...course,
                 course_image_url: data.url,
             });
+            
         } catch (error) {
             if (error instanceof AxiosError) {
                 setError(error.response?.data.error);
@@ -64,7 +65,7 @@ export default function CreateCourseModal(
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
-       
+
         try {
             await uploadImage();
             const res = await axiosInstance.post(

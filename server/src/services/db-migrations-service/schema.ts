@@ -12,7 +12,15 @@ import {
 } from "drizzle-orm/pg-core";
 export const userRoles = pgEnum("user_roles", ["admin", "student", "teacher"]);
 export const chapterType = pgEnum("chapter_type", ["learn", "exercise"]);
-export const daysOfWeek = pgEnum("days_of_week", ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]);
+export const daysOfWeek = pgEnum("days_of_week", [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+]);
 
 export const usersTable = pgTable("users", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -125,7 +133,7 @@ export const teacherScheduleTable = pgTable("teacher_schedule", {
     teacher_id: uuid("teacher_id").notNull().references(() => usersTable.id),
     start_time: timestamp().notNull(),
     end_time: timestamp().notNull(),
-    day : daysOfWeek("day").notNull(),
+    day: daysOfWeek("day").notNull(),
     is_active: boolean().default(true),
     created_at: timestamp().notNull().defaultNow(),
     updated_at: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),

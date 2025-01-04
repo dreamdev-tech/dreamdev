@@ -16,6 +16,9 @@ func RegisterCourseRoutes(app fiber.Router, db *sqlx.DB) {
 	api.Get("/get-courses-name", func(c *fiber.Ctx) error {
 		return getOneTeacherCoursesNamesHandler(c, db)
 	})
+	api.Get("/get-course/:course_id", func(c *fiber.Ctx) error {
+		return getCourseWithChaptersHandler(c, db)
+	})
 
 }
 
@@ -43,4 +46,12 @@ func getOneTeacherCoursesNamesHandler(c *fiber.Ctx, db *sqlx.DB) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"courses": courses})
+}
+func getCourseWithChaptersHandler(c *fiber.Ctx, db *sqlx.DB) error {
+	courseID := c.Params("course_id")
+	course, err := getCourseWithChaptersQuery(uuid.MustParse(courseID), db)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"course": course})
 }
