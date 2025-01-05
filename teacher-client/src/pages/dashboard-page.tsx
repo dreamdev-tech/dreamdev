@@ -9,20 +9,32 @@ import { CourseNameResponse } from "@/types/course-types";
 import axiosInstance from "@/lib/axios-instance";
 import { teacherServiceBaseUrl } from "@/lib/services-base-url";
 import { CourseListSkeleton } from "@/components/dashboard/course-list-skeleton";
+import { toast } from "@/hooks/use-toast";
 
 export default function TeacherDashboard() {
     const [courses, setCourses] = useState<CourseNameResponse[] | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     useEffect(() => {
         const fetchCoursesNames = async () => {
             try {
                 const { data } = await axiosInstance.get(
                     `${teacherServiceBaseUrl}/course/get-courses-name`,
                 );
+                if (data.courses === null) {
+                    setCourses([]);
+                    return;
+                }
                 setCourses(data.courses);
             } catch (error) {
-                console.log(error);
+                toast({
+                    title: "Error",
+                    description: "An error occurred: " +
+                        (error instanceof Error
+                            ? error.message
+                            : String(error)),
+                });
             }
         };
         fetchCoursesNames();
@@ -49,7 +61,15 @@ export default function TeacherDashboard() {
                 >
                     <h2 className="text-2xl font-bold mb-6">My Courses</h2>
                     {courses
-                        ? <CourseList courses={courses} />
+                        ? (
+                            courses.length > 0
+                                ? <CourseList courses={courses} />
+                                : (
+                                    <p className="text-gray-500">
+                                        No courses found
+                                    </p>
+                                )
+                        )
                         : <CourseListSkeleton />}
                     <Button
                         className="w-full mt-4"
@@ -65,8 +85,9 @@ export default function TeacherDashboard() {
                 </main>
             </div>
             <CreateCourseModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
+                setCourses={setCourses}
             />
             <ModeToggle />
         </div>

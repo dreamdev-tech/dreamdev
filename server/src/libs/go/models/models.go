@@ -7,14 +7,16 @@ import (
 )
 
 // UserRoles enum for roles
-type UserRoles string
-type ChapterType string
+type (
+	UserRoles   string
+	ChapterType string
+)
 
 const (
 	AdminRole       UserRoles   = "admin"
 	studentRole     UserRoles   = "student"
 	TeacherRole     UserRoles   = "teacher"
-	LearnChapter    ChapterType = "learning"
+	LearnChapter    ChapterType = "learn"
 	ExerciseChapter ChapterType = "exercise"
 )
 

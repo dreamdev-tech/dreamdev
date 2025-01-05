@@ -1,3 +1,4 @@
+import { ChapterType } from "@/types/course-types";
 import { z } from "zod";
 
 export const createCourseSchema = z.object({
@@ -15,3 +16,15 @@ export const createCourseSchema = z.object({
     ),
 });
 
+export const createChapterSchema = z.object({
+    course_id: z.string({ message: "course id should be a string" }),
+    chapter_name: z
+        .string({ message: "chapter name should be a string" })
+        .min(3, { message: "chapter should be at least 3 characters" })
+        .max(50, {
+            message: "chapter name should be at most 50 characters",
+        }),
+    chapter_type: z.enum(Object.values(ChapterType) as [string, ...string[]], {
+        message: "chapter type should be either exercise or learn",
+    }),
+})

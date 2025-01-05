@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "christian-kohler.npm-intellisense",
+        "dsznajder.es7-react-js-snippets",
+        "formulahendry.auto-rename-tag",
+        "bradlc.vscode-tailwindcss",
+        "moalamri.inline-fold"
+    ]
+}

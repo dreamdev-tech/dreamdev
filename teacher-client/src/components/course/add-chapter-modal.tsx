@@ -24,6 +24,10 @@ import {
     ChapterType,
     GetCourseWithChaptersResponse,
 } from "@/types/course-types";
+import axiosInstance from "@/lib/axios-instance";
+import { teacherServiceBaseUrl } from "@/lib/services-base-url";
+import { createChapterSchema } from "@/utils/validations";
+import { AxiosError } from "axios";
 
 export function AddChapterModal(
     { isOpen, setIsOpen, setCourse }: {
@@ -40,20 +44,46 @@ export function AddChapterModal(
         chapter_type: ChapterType.exercise,
         chapter_name: "",
     });
-
-    const handleSubmit = (e: React.FormEvent) => {
+    
+    const [error, setError] = useState<string[] | null>(null);
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setCourse((prev) => {
-            return prev && {
-                ...prev,
-                chapters: [...prev.chapters, {
-                    id: Math.random().toString(),
-                    chapter_name: chapter.chapter_name,
-                    chapter_type: chapter.chapter_type,
-                }],
-            };
-        });
-        setIsOpen(false);
+        const result = createChapterSchema.safeParse(chapter);
+        if (!result.success) {
+            setError(result.error.errors.flat().map((error) => error.message));
+            return;
+        }
+        try {
+            const { data } = await axiosInstance.post(
+                `${teacherServiceBaseUrl}/chapter/create`,
+                chapter,
+            );
+            setError(null);
+            setCourse((prev) => {
+                return prev && {
+                    ...prev,
+                    chapters: [...prev.chapters, {
+                        id: data.chapter_id,
+                        chapter_name: chapter.chapter_name,
+                        chapter_type: chapter.chapter_type,
+                        is_verified: false,
+                        chapter_number:data.chapter_number,
+                    }],
+                };
+            });
+            setChapter({
+                course_id: courseId!,
+                chapter_type: ChapterType.exercise,
+                chapter_name: "",
+            });
+            setIsOpen(false);
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                setError([error.response?.data.error]);
+                return;
+            }
+            setError(["Something went wrong"]);
+        }
     };
 
     return (
@@ -61,6 +91,10 @@ export function AddChapterModal(
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>Add New Chapter</DialogTitle>
+                    {error &&
+                        (error.map((error) => (
+                            <li key={error} className="text-red-500">{error}</li>
+                        )))}
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
