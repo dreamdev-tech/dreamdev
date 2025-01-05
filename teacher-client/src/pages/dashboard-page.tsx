@@ -9,6 +9,7 @@ import { CourseNameResponse } from "@/types/course-types";
 import axiosInstance from "@/lib/axios-instance";
 import { teacherServiceBaseUrl } from "@/lib/services-base-url";
 import { CourseListSkeleton } from "@/components/dashboard/course-list-skeleton";
+import { toast } from "@/hooks/use-toast";
 
 export default function TeacherDashboard() {
     const [courses, setCourses] = useState<CourseNameResponse[] | null>(null);
@@ -27,7 +28,13 @@ export default function TeacherDashboard() {
                 }
                 setCourses(data.courses);
             } catch (error) {
-                console.log(error);
+                toast({
+                    title: "Error",
+                    description: "An error occurred: " +
+                        (error instanceof Error
+                            ? error.message
+                            : String(error)),
+                });
             }
         };
         fetchCoursesNames();
@@ -80,7 +87,7 @@ export default function TeacherDashboard() {
             <CreateCourseModal
                 isModalOpen={isModalOpen}
                 setIsModalOpen={setIsModalOpen}
-                setCourses= {setCourses}
+                setCourses={setCourses}
             />
             <ModeToggle />
         </div>

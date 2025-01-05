@@ -1,6 +1,7 @@
 import { AddChapterModal } from "@/components/course/add-chapter-modal";
 import CourseChapters from "@/components/course/course-chapters";
 import CourseDescription from "@/components/course/course-description";
+import { toast } from "@/hooks/use-toast";
 import axiosInstance from "@/lib/axios-instance";
 import { teacherServiceBaseUrl } from "@/lib/services-base-url";
 import { GetCourseWithChaptersResponse } from "@/types/course-types";
@@ -24,10 +25,17 @@ export default function CoursePage() {
                     `${teacherServiceBaseUrl}/course/get-course/${courseId}`,
                 );
                 setCourse(data.course);
-                
             } catch (error) {
                 if (error instanceof AxiosError) {
-                    console.log(error);
+                    toast({
+                        title: "Error",
+                        description: error.response?.data.message,
+                    });
+                } else {
+                    toast({
+                        title: "Error",
+                        description: "An error occurred",
+                    });
                 }
             }
         };

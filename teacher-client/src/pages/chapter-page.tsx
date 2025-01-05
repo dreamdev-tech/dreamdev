@@ -47,7 +47,7 @@ export default function ChapterPage() {
                                     : "bg-red-500",
                             )}
                         >
-                            {!!chapter.is_verified ? "Verified" : "Not Verified"}
+                            {chapter.is_verified ? "Verified" : "Not Verified"}
                         </Badge>
                     </div>
                     <SectionList sections={chapter.sections}/>
