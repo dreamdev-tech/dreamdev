@@ -7,3 +7,16 @@ type CreateChapterType struct {
 	Name     string    `json:"chapter_name" db:"chapter_name"`
 	Type     string    `json:"chapter_type" db:"chapter_type"`
 }
+
+type GetChapterWithSectionsType struct {
+	Name       *string            `json:"chapter_name" db:"chapter_name"`
+	Type       *string            `json:"chapter_type" db:"chapter_type"`
+	IsVerified *bool              `json:"is_verified" db:"is_verified"`
+	Number     *int               `json:"chapter_number" db:"chapter_number"`
+	Section    []*GetSectionsType `json:"sections" db:"sections"`
+}
+type GetSectionsType struct {
+	ID     *uuid.UUID `json:"id" db:"id"`
+	Text   *string    `json:"text" db:"text"`
+	Number *int       `json:"section_number" db:"section_number"`
+}

@@ -74,11 +74,13 @@ export const chaptersTable = pgTable("chapters", {
 export const chapterSectionsTable = pgTable("chapter_sections", {
     id: uuid("id").primaryKey().defaultRandom(),
     chapter_id: uuid("chapter_id").notNull().references(() => chaptersTable.id),
+    section_number: serial("section_number"),
     text: text("text").notNull(),
     created_at: timestamp().notNull().defaultNow(),
     updated_at: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
 }, (table) => [
     index().on(table.chapter_id),
+    index().on(table.section_number),
 ]);
 
 export const chapterSectionFilesTable = pgTable("chapter_section_files", {

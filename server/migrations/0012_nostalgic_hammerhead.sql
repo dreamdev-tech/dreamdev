@@ -1,0 +1,2 @@
+ALTER TABLE "chapter_sections" ADD COLUMN "chapter_number" serial NOT NULL;--> statement-breakpoint
+CREATE INDEX "chapter_sections_chapter_number_index" ON "chapter_sections" USING btree ("chapter_number");
