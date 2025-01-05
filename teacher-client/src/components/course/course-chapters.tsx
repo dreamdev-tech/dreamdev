@@ -3,6 +3,7 @@ import { ChapterType } from "@/types/course-types";
 import { PlusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function CourseChapters({ chapters, setIsModalOpen }: {
     chapters: {
@@ -14,6 +15,8 @@ export default function CourseChapters({ chapters, setIsModalOpen }: {
     }[];
     setIsModalOpen: (value: boolean) => void;
 }) {
+    const {courseId} = useParams();
+    const navigate = useNavigate();
     return (
         <>
             {chapters.sort((a, b) => a.chapter_number - b.chapter_number).map((
@@ -22,7 +25,7 @@ export default function CourseChapters({ chapters, setIsModalOpen }: {
                 <Card
                     key={chapter.id}
                     className="cursor-pointer hover:bg-accent transition-colors"
-                    onClick={() => console.log(chapter)}
+                    onClick={() => navigate(`/chapter/${courseId}/${chapter.id}`)}
                 >
                     <CardHeader>
                         <CardTitle>{chapter.chapter_name}</CardTitle>

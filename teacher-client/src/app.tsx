@@ -1,11 +1,12 @@
-import React, { Suspense } from "react";
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import LoadingPage from "@/pages/loading-page";
 
-const HomePage = React.lazy(() => import("@/pages/home-page"));
-const DashboardPage = React.lazy(() => import("@/pages/dashboard-page"));
-const CoursePage = React.lazy(() => import("@/pages/course-page"));
-
+const HomePage = lazy(() => import("@/pages/home-page"));
+const DashboardPage = lazy(() => import("@/pages/dashboard-page"));
+const CoursePage = lazy(() => import("@/pages/course-page"));
+const ChapterPage = lazy(() => import("@/pages/chapter-page"));
+const NotFoundPage = lazy(() => import("@/pages/not-found-page"));
 export default function App() {
   return (
     <div className="">
@@ -31,6 +32,22 @@ export default function App() {
           element={
             <Suspense fallback={<LoadingPage />}>
               <CoursePage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/chapter/:courseId/:chapterId"
+          element={
+            <Suspense fallback={<LoadingPage />}>
+              <ChapterPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <Suspense fallback={<LoadingPage />}>
+              <NotFoundPage />
             </Suspense>
           }
         />

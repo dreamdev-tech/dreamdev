@@ -13,6 +13,9 @@ func RegisterChapterRoutes(app fiber.Router, db *sqlx.DB) {
 	api.Post("/create", func(c *fiber.Ctx) error {
 		return createChapterHandler(c, db)
 	})
+	api.Get("/get-chapter/:chapter_id", func(c *fiber.Ctx) error {
+		return getChapterWithSectionsHandler(c, db)
+	})
 }
 
 func createChapterHandler(c *fiber.Ctx, db *sqlx.DB) error {
@@ -28,4 +31,16 @@ func createChapterHandler(c *fiber.Ctx, db *sqlx.DB) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"chapter_id": chapterID, "chapter_number": chapterNumber})
+}
+
+func getChapterWithSectionsHandler(c *fiber.Ctx, db *sqlx.DB) error {
+	chapterID := c.Params("chapter_id")
+
+	chapter, err := getChapterWithSectionsQuery(uuid.MustParse(chapterID), db)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"chapter": chapter,
+	})
 }

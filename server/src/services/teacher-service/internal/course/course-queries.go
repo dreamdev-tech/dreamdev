@@ -1,6 +1,8 @@
 package course
 
 import (
+	"database/sql"
+
 	"github.com/Aziz798/dreamdev/src/services/teacher-service/internal/types"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -8,7 +10,7 @@ import (
 
 func createCourseQuery(course types.CreateCourseType, db *sqlx.DB) (uuid.UUID, error) {
 	var courseId uuid.UUID
-	err := db.Get(&courseId, "INSERT INTO courses (teacher_id, course_name, course_description, course_image_url) VALUES ($1, $2, $3, $4) RETURNING id", course.TeacherID, course.Name, course.Description, course.ImageURL)
+	err := db.Get(&courseId, "INSERT INTO courses (teacher_id, course_name, course_description, course_image_url,is_verified) VALUES ($1, $2, $3, $4,$5) RETURNING id", course.TeacherID, course.Name, course.Description, course.ImageURL, false)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -25,33 +27,35 @@ func getOneTeacherCoursesNamesQuery(teacherID uuid.UUID, db *sqlx.DB) ([]types.G
 
 func getCourseWithChaptersQuery(courseID uuid.UUID, db *sqlx.DB) (*types.GetCourseWithChaptersType, error) {
 	rows, err := db.Queryx(`
-		SELECT 
-			courses.course_name, 
-			courses.course_description, 
-			courses.course_image_url, 
-			courses.is_verified,
-			chapters.id AS chapter_id, 
-			chapters.chapter_name, 
-			chapters.chapter_type ,
-			chapters.is_verified,
-			chapters.chapter_number
-		FROM courses 
-		LEFT JOIN chapters 
-			ON courses.id = chapters.course_id 
-		WHERE courses.id = $1
-	`, courseID)
+        SELECT 
+            courses.course_name, 
+            courses.course_description, 
+            courses.course_image_url, 
+            courses.is_verified,
+            chapters.id AS chapter_id, 
+            chapters.chapter_name, 
+            chapters.chapter_type,
+            chapters.is_verified,
+            chapters.chapter_number
+        FROM courses 
+        LEFT JOIN chapters 
+            ON courses.id = chapters.course_id 
+        WHERE courses.id = $1
+    `, courseID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
+	course := types.GetCourseWithChaptersType{
+		Chapter: []types.Chapter{},
+	}
 
-	// Create the course struct
-	var course types.GetCourseWithChaptersType
 	chapterMap := make(map[uuid.UUID]bool)
-
 	for rows.Next() {
 		var chapter types.Chapter
 		var chapterID uuid.UUID
+		var isVerified sql.NullBool
+
 		err := rows.Scan(
 			&course.Name,
 			&course.Description,
@@ -60,12 +64,20 @@ func getCourseWithChaptersQuery(courseID uuid.UUID, db *sqlx.DB) (*types.GetCour
 			&chapterID,
 			&chapter.Name,
 			&chapter.Type,
-			&chapter.IsVerified,
+			&isVerified,
 			&chapter.Number,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		if isVerified.Valid {
+			isVerifiedPtr := isVerified.Bool
+			chapter.IsVerified = &isVerifiedPtr
+		} else {
+			chapter.IsVerified = nil
+		}
+
 		if chapterID != uuid.Nil && !chapterMap[chapterID] {
 			chapter.ID = &chapterID
 			course.Chapter = append(course.Chapter, chapter)
@@ -73,6 +85,7 @@ func getCourseWithChaptersQuery(courseID uuid.UUID, db *sqlx.DB) (*types.GetCour
 		}
 	}
 
+	// Check for row errors after iteration
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
