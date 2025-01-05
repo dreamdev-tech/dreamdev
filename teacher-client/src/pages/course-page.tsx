@@ -24,7 +24,6 @@ export default function CoursePage() {
                     `${teacherServiceBaseUrl}/course/get-course/${courseId}`,
                 );
                 setCourse(data.course);
-                console.log(data.course);
                 
             } catch (error) {
                 if (error instanceof AxiosError) {

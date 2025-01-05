@@ -78,8 +78,9 @@ export default function TeacherDashboard() {
                 </main>
             </div>
             <CreateCourseModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
+                setCourses= {setCourses}
             />
             <ModeToggle />
         </div>

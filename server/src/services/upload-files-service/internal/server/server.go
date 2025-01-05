@@ -3,8 +3,8 @@ package server
 import (
 	"github.com/gofiber/fiber/v2"
 
+	"github.com/Aziz798/dreamdev/src/libs/go/database"
 	"github.com/Aziz798/dreamdev/src/libs/go/validations"
-	"github.com/Aziz798/dreamdev/src/services/upload-files-service/internal/database"
 )
 
 type UploadFilesServer struct {
