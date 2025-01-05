@@ -1,13 +1,18 @@
 import axiosInstance from "@/lib/axios-instance";
 import { teacherServiceBaseUrl } from "@/lib/services-base-url";
+import { cn } from "@/lib/utils";
 import { GetChapterWithChapterSectionsResponseType } from "@/types/chapter-types";
 import { AxiosError, AxiosResponse } from "axios";
+import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import SectionList from "@/components/chapter/section-list";
 
 export default function ChapterPage() {
     const { courseId, chapterId } = useParams();
-    const [chapter, setChapter] = useState<GetChapterWithChapterSectionsResponseType | null>(null);
+    const [chapter, setChapter] = useState<
+        GetChapterWithChapterSectionsResponseType | null
+    >(null);
     console.log(chapter);
 
     useEffect(() => {
@@ -29,17 +34,23 @@ export default function ChapterPage() {
     return (
         <div>
             {chapter && (
-                <div className="p-4">
-                    <h1 className="text-3xl font-semibold">
-                        {chapter.chapter_name}
-                    </h1>
-                    <p className="text-lg">{chapter.is_verified.toString()}</p>
-                    <h2 className="text-2xl font-semibold mt-4">
-                        Chapter Sections:
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {JSON.stringify(chapter.sections)}
+                <div className="container mx-auto p-4">
+                    <div className="flex items-center align-middle space-x-8">
+                        <h1 className="text-3xl font-bold mb-6">
+                            {chapter.chapter_name}
+                        </h1>
+                        <Badge
+                            className={cn(
+                                "",
+                                chapter.is_verified
+                                    ? "bg-green-500"
+                                    : "bg-red-500",
+                            )}
+                        >
+                            {!!chapter.is_verified ? "Verified" : "Not Verified"}
+                        </Badge>
                     </div>
+                    <SectionList sections={chapter.sections}/>
                 </div>
             )}
         </div>

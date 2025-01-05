@@ -1,10 +1,10 @@
 import { ChapterType } from "./course-types";
 
-export type AddChapterFormType= {
+export type AddChapterFormType = {
     course_id: string;
     chapter_type: ChapterType;
     chapter_name: string;
-}
+};
 
 export type GetChapterWithChapterSectionsResponseType = {
     chapter_name: string;
@@ -12,9 +12,10 @@ export type GetChapterWithChapterSectionsResponseType = {
     is_verified: boolean;
     chapter_number: number;
     sections: ChapterSectionResponseType[];
-}
+};
 export type ChapterSectionResponseType = {
     id: string;
+    title: string | null;
     text: string;
     section_number: number;
-}
+};

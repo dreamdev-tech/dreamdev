@@ -75,6 +75,7 @@ export const chapterSectionsTable = pgTable("chapter_sections", {
     id: uuid("id").primaryKey().defaultRandom(),
     chapter_id: uuid("chapter_id").notNull().references(() => chaptersTable.id),
     section_number: serial("section_number"),
+    title : varchar({ length: 30 }),
     text: text("text").notNull(),
     created_at: timestamp().notNull().defaultNow(),
     updated_at: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),

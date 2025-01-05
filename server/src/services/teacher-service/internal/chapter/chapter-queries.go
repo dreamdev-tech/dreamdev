@@ -25,6 +25,7 @@ func getChapterWithSectionsQuery(chapterID uuid.UUID, db *sqlx.DB) (*types.GetCh
 			chapters.is_verified,
 			chapters.chapter_number,
 			chapter_sections.id,
+			chapter_sections.title,
 			chapter_sections.text,
 			chapter_sections.section_number
 		FROM chapters
@@ -48,6 +49,7 @@ func getChapterWithSectionsQuery(chapterID uuid.UUID, db *sqlx.DB) (*types.GetCh
 			&chapter.IsVerified,
 			&chapter.Number,
 			&section.ID,
+			&section.Title,
 			&section.Text,
 			&section.Number,
 		)

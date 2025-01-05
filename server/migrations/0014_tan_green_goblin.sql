@@ -1,0 +1,1 @@
+ALTER TABLE "chapter_sections" ADD COLUMN "title" varchar(30);

@@ -17,6 +17,7 @@ type GetChapterWithSectionsType struct {
 }
 type GetSectionsType struct {
 	ID     *uuid.UUID `json:"id" db:"id"`
+	Title  *string    `json:"title" db:"title"`
 	Text   *string    `json:"text" db:"text"`
 	Number *int       `json:"section_number" db:"section_number"`
 }
