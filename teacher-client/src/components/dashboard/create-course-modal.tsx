@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { SetStateAction, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,16 +15,24 @@ import {
     teacherServiceBaseUrl,
     uploadFilesServiceBaseUrl,
 } from "@/lib/services-base-url";
-import { AddCourseFormType, AddImageResponse } from "@/types/course-types";
+import {
+    AddCourseFormType,
+    AddImageResponse,
+    CourseNameResponse,
+} from "@/types/course-types";
 import { AxiosError, AxiosResponse } from "axios";
+import { useToast } from "@/hooks/use-toast";
 
 type CreateCourseModalProps = {
-    isOpen: boolean;
-    onClose: () => void;
+    isModalOpen: boolean;
+    setIsModalOpen: React.Dispatch<SetStateAction<boolean>>;
+    setCourses: React.Dispatch<
+        React.SetStateAction<CourseNameResponse[] | null>
+    >;
 };
 
 export default function CreateCourseModal(
-    { isOpen, onClose }: CreateCourseModalProps,
+    { isModalOpen, setIsModalOpen, setCourses }: CreateCourseModalProps,
 ) {
     const [image, setImage] = useState<File>();
     const [course, setCourse] = useState<AddCourseFormType>({
@@ -33,6 +41,7 @@ export default function CreateCourseModal(
         course_image_url: "",
     });
     const [error, setError] = useState<string | null>(null);
+    const { toast } = useToast();
     const uploadImage = async () => {
         const formData = new FormData();
         if (image) {
@@ -53,26 +62,42 @@ export default function CreateCourseModal(
                 ...course,
                 course_image_url: data.url,
             });
-            
+            toast({
+                title: "image downloaded",
+                description: "image downloaded successfully",
+            });
+            setImage(undefined);
         } catch (error) {
             if (error instanceof AxiosError) {
                 setError(error.response?.data.error);
             } else {
                 setError("An error occurred");
             }
+            throw error;
         }
     };
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
-
         try {
             await uploadImage();
-            const res = await axiosInstance.post(
+            const { data } = await axiosInstance.post(
                 `${teacherServiceBaseUrl}/course/create`,
                 course,
             );
-            console.log(res.data);
+            setCourses((prev) => [...(prev || []), {
+                course_name: course.course_name,
+                id: data.course_id,
+            }]);
+            toast({
+                title: "course created successfully",
+            });
+            setIsModalOpen(false);
+            setCourse({
+                course_name: "",
+                course_description: "",
+                course_image_url: "",
+            });
         } catch (error) {
             if (error instanceof AxiosError) {
                 setError(error.response?.data.error);
@@ -82,7 +107,7 @@ export default function CreateCourseModal(
         }
     };
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isModalOpen}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Create New Course</DialogTitle>

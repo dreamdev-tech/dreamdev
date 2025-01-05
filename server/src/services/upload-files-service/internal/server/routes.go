@@ -13,6 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func (s *UploadFilesServer) RegisterFiberRoutes() {
@@ -29,7 +30,7 @@ func (s *UploadFilesServer) RegisterFiberRoutes() {
 	api.Use(cors.New(cors.Config{
 		AllowOrigins:     origins,
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, X-Refresh-Token, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Idempotency-Key,X-Cache",
-		AllowMethods:     "GET,POST,PUT,OPTIONS",
+		AllowMethods:     "GET,POST,OPTIONS,PUT,DELETE",
 		AllowCredentials: true,
 	}))
 	api.Use(idempotency.New(idempotency.ConfigDefault))

@@ -1,6 +1,7 @@
 import { AddChapterModal } from "@/components/course/add-chapter-modal";
 import CourseChapters from "@/components/course/course-chapters";
 import CourseDescription from "@/components/course/course-description";
+import { toast } from "@/hooks/use-toast";
 import axiosInstance from "@/lib/axios-instance";
 import { teacherServiceBaseUrl } from "@/lib/services-base-url";
 import { GetCourseWithChaptersResponse } from "@/types/course-types";
@@ -26,7 +27,15 @@ export default function CoursePage() {
                 setCourse(data.course);
             } catch (error) {
                 if (error instanceof AxiosError) {
-                    console.log(error);
+                    toast({
+                        title: "Error",
+                        description: error.response?.data.message,
+                    });
+                } else {
+                    toast({
+                        title: "Error",
+                        description: "An error occurred",
+                    });
                 }
             }
         };
@@ -39,6 +48,7 @@ export default function CoursePage() {
                     course_name={course.course_name}
                     course_description={course.course_description}
                     course_image_url={course.course_image_url}
+                    is_verified={course.is_verified}
                 />
             )}
             <h2 className="text-3xl font-semibold mb-8 text-center">
