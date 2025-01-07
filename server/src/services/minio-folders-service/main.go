@@ -51,3 +51,54 @@ func main() {
 
 	log.Printf("Folder '%s' created successfully in bucket '%s'\n", folderNameWithSlash, *bucketName)
 }
+
+// package main
+
+// import (
+// 	"context"
+// 	"fmt"
+// 	"log"
+
+// 	"github.com/minio/minio-go/v7"
+// 	"github.com/minio/minio-go/v7/pkg/credentials"
+// )
+
+// func main() {
+// 	// MinIO configuration details
+// 	endpoint := "localhost:9001"         // MinIO server endpoint (adjust as necessary)
+// 	accessKeyID := "root_user"           // MinIO access key
+// 	secretAccessKey := "aziz1234@azerty" // MinIO secret key
+// 	useSSL := false                      // Set true if your MinIO instance is using HTTPS
+
+// 	// Initialize the MinIO client
+// 	client, err := minio.New(endpoint, &minio.Options{
+// 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+// 		Secure: useSSL,
+// 	})
+// 	if err != nil {
+// 		log.Fatalf("Error initializing MinIO client: %v", err)
+// 	}
+
+// 	// The name of the bucket to be created
+// 	bucketName := "dreamdev"
+
+// 	// Check if the bucket already exists
+// 	exists, err := client.BucketExists(context.Background(), bucketName)
+// 	if err != nil {
+// 		log.Fatalf("Error checking bucket existence: %v", err)
+// 	}
+
+// 	if exists {
+// 		fmt.Printf("Bucket '%s' already exists.\n", bucketName)
+// 		return
+// 	}
+
+// 	// Create the bucket
+// 	err = client.MakeBucket(context.Background(), bucketName, minio.MakeBucketOptions{Region: "us-east-1"})
+// 	if err != nil {
+// 		log.Fatalf("Error creating bucket: %v", err)
+// 	}
+
+// 	// Success message
+// 	fmt.Printf("Bucket '%s' created successfully!\n", bucketName)
+// }

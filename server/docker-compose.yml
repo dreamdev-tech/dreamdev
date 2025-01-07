@@ -50,10 +50,11 @@ services:
           memory: '4096M'
     ports:
       - "9001:9000"
+      - "42069:42069"
     volumes:
       - minio_data:/data
       - minio_config:/root/.minio
-    command: server /data
+    command: server --console-address ":42069" /data
 volumes:
   postgres_data:
     driver: local
